@@ -12,23 +12,33 @@ end.parse!
 
 class Init
   attr_accessor :states
-  attr_accessor :options
   attr_accessor :state_machine
 
-  def initialize(options = {}, state_machine)
-    self.options = options
+  def initialize(state_machine)
     self.state_machine = state_machine
     self.states = {}
   end
 
-  def start
+  def parse_file(file_name)
+    start_state_machine
+    File.readlines(file_name).each do |line|
+      state_machine.reset
+      state_machine.current_state = get_state(:initial)
+      state_machine.line = clean_line(line)
+      state_machine.execute
+    end
+  end
+
+  def start_state_machine
     create_states
     state_machine.current_state = get_state(:initial)
-    state_machine.line = 'a=-56.123+22.2//34.4 * 12.12'
-    state_machine.execute
   end
 
   protected
+
+  def clean_line(line)
+    line.strip
+  end
 
   def get_state(key)
     states[key]
@@ -43,10 +53,11 @@ class Init
     create_state_comment(:initial)
     create_state_float(:initial)
     create_state_int(:initial)
-    create_state_add(:initial)
     create_state_minus(:initial)
+    create_state_add(:initial)
     create_state_multiply(:initial)
     create_state_divide(:initial)
+    create_state_power(:initial)
 
     add_transition :initial, create_transition(:initial, /./)
   end
@@ -86,6 +97,9 @@ class Init
   def create_state_float(_initial)
     create_state(:float)
     add_transition :float, create_transition(:float, /[0-9]/)
+    add_transition :float, create_transition(:float, /E/)
+    add_transition :float, create_transition(:float, /\./)
+    add_transition :float, create_transition(:float, /\-/)
     add_transition :float, back_to_start
   end
 
@@ -115,10 +129,15 @@ class Init
     add_transition :divide, back_to_start
   end
 
-  def create_state_comment(initial)
+  def create_state_power(initial)
+    create_state(:power)
+    add_transition initial, create_transition(:power, /\^/)
+    add_transition :power, back_to_start
+  end
+
+  def create_state_comment(_initial)
     create_state(:comment)
     add_transition :comment, create_transition(:comment, /./)
-    add_transition :comment, back_to_start
   end
 
   def create_transition(key, exp, type = :final)
@@ -135,5 +154,5 @@ class Init
 end
 
 logger = Logger.new
-init = Init.new(options, StateMachine.new(logger: logger))
-init.start
+init = Init.new(StateMachine.new(logger: logger))
+init.parse_file(options[:file])

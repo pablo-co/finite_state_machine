@@ -11,6 +11,10 @@ class StateMachine
     self.token = ''
   end
 
+  def reset
+    reset_token
+  end
+
   def execute
     state = current_state
     line.each_char do |character|
