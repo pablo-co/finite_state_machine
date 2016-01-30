@@ -1,0 +1,5 @@
+--readme README.md
+--title 'State MachineDocumentation'
+--charset utf-8
+--markup markdown
+'*.rb' - '*.md' - 'doc/*.md'

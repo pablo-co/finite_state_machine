@@ -11,10 +11,14 @@ class StateMachine
     self.token = ''
   end
 
+  # Resets the State Machine's state.
+  #
+  # @return [nil]
   def reset
     reset_token
   end
 
+  # Executes the State Machine
   def execute
     state = current_state
     line.each_char do |character|
@@ -26,18 +30,33 @@ class StateMachine
     logger.log(state: state, character: token)
   end
 
+  # Gets the next transition after processing a character.
+  # Won't return a transition that responds `true` for transition#initial?
+  #
+  # @param character [String] the character that will be processed
+  # @return [Transition] the next transition to a final state
   def process_character(character)
     transition = get_next_transition(character)
     get_next_transition(character) if transition.initial?
     transition
   end
 
+  # Gets the next transition that is valid for the character.
+  # Will set #current_state to Transition#to_state.
+  #
+  # @param character [String] the character that will be evaluated
+  # @return [Transition] the first transition that finds
   def get_next_transition(character)
     transition = get_transition(character)
     self.current_state = transition.to_state
     transition
   end
 
+  # Gets the next transition that is valid for the character.
+  # Will set #current_state to Transition#to_state.
+  #
+  # @param character [String] the character that will be evaluated
+  # @return [Transition] the first transition that finds
   def get_transition(character)
     current_state.get_next_state(character)
   end
