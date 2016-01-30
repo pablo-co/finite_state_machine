@@ -3,11 +3,16 @@ require_relative 'state_machine'
 require_relative 'state'
 require_relative 'transition'
 
-# A ParserBuilder implementation which processes a set of tokens
-# as defined in the User Manual
+# A {StateMachineBuilder} implementation which processes a set of tokens
+# as defined in the {file:doc/MANUAL.md User Manual}
 class ParserBuilder < StateMachineBuilder
+  # @return [Hash<Symbol, State>] the states on the state machine
   attr_accessor :states
+
+  # @return [StateMachine] the state machine to which all states and transitions are going to be added.
   attr_accessor :state_machine
+
+  # @return [Logger] the logger to which all state machine actions will be sent
   attr_accessor :logger
 
   def initialize(args = {})
@@ -15,7 +20,7 @@ class ParserBuilder < StateMachineBuilder
     self.states = {}
   end
 
-  # @see {StateMachineBuilder#build}
+  # @see StateMachineBuilder#build
   def build
     self.state_machine = StateMachine.new(logger: logger)
     create_states
@@ -23,7 +28,7 @@ class ParserBuilder < StateMachineBuilder
     state_machine
   end
 
-  # @see {StateMachineBuilder#reset}
+  # @see StateMachineBuilder#reset
   def reset
     state_machine.reset
     state_machine.current_state = get_state(:initial)
@@ -131,14 +136,28 @@ class ParserBuilder < StateMachineBuilder
     add_transition :comment, create_transition(:comment, /./)
   end
 
+  # Adds a transition to a state given an identifier
+  # @param [String] key the target state's identifier
+  # @param [String, Regexp] exp
+  # the expression or characters for which the transition
+  # is valid
+  # @param [Symbol] type the type of transition, Defaults to `:final` (see {Transition::TYPES})
+  # @return [Transition] the newly created transition
   def create_transition(key, exp, type = :final)
     Transition.new(to_state: states[key], valid_characters: exp, type: type)
   end
 
+  # Adds a transition to a state given an identifier
+  # @param [String] key the state's identifier
+  # @param [Transition] transition the transition that is going to be added.
+  # @return [nil]
   def add_transition(key, transition)
     self.states[key].push_transition(transition)
   end
 
+  # Creates a new {State} with the given identifier
+  # @param [String] key the state's identifier
+  # @return [State] the newly created state
   def create_state(key)
     self.states[key] = State.new(name: key)
   end

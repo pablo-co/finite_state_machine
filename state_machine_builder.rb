@@ -1,8 +1,8 @@
-# A wrapper around a State Machine Builder.
-# @see {ParserBuilder} for reference implementation
-# @abstract - subclass and implement #build and #reset,
+# A wrapper around a {StateMachine}.
+# @see ParserBuilder for reference implementation
+# @abstract - subclass and implement {#build} and {#reset},
 #             ensuring that BuildException and ResetException
-#             are raised when building or reseting is exceptional.
+#             are raised when building or resetting is exceptional.
 class StateMachineBuilder
   # An exception raised when the builder can't create the StateMachine
   class BuildException < StandardError;

@@ -11,6 +11,8 @@ Download this repository
 And then execute:
 
     $ ruby init.rb -f `Your file`
+    
+Checkout the [User Manual](https://github.com/pablo-co/finite_state_machine/blob/master/doc/MANUAL.md) for further usage instructions and restrictions.
 
 ### Handling errors
 
@@ -18,7 +20,6 @@ There are 2 types of errors this gem can raise:
 
 * __BuildException::StateMachineBuildException__: This error is raised when the builder can't create the StateMachine.
 * __ResetException::StateMachineResetException__: This error is raised when the builder can't reset the StateMachine.
-
 
 ## Documentation
 

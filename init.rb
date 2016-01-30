@@ -15,15 +15,15 @@ end.parse!
 # creates all of it's states and transitions
 # @see StateMachine
 class Init
-  # @attr [StateMachineBuilder] builder
-  # The builder which will return a custom implementation of {StateMachine}
+  # @return [StateMachineBuilder] a builder which will return a custom implementation of {StateMachine}
   attr_accessor :builder
 
   def initialize(builder)
     self.builder = builder
   end
 
-  # Executes the State Machine
+  # Extracts the lines from a file and executes the State Machine
+  # for each of these lines
   # @param [String] file_name the file name which contains the code
   # @return [nil]
   def parse_file(file_name)

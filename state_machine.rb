@@ -1,8 +1,19 @@
+# An implementation of a state machine. It's states are
+# represented with the {State} class while it's transitions
+# are instances of {Transition}. It logs all movements to a
+# {Logger logger} and moves between states according to {StateMachine#line line}.
 class StateMachine
-  attr_accessor :last_state
+  # @return [String] the line the state machine is processing
   attr_accessor :line
+
+  # @return [Logger] the logger to which all state machine actions will be sent
   attr_accessor :logger
+
+  # @return [State] the state machine's current state
   attr_reader :current_state
+
+  # @return [State] the state that lead to current state
+  attr_accessor :last_state
 
   def initialize(args = {})
     self.current_state = args.fetch(:state, nil)
@@ -12,13 +23,13 @@ class StateMachine
   end
 
   # Resets the State Machine's state.
-  #
   # @return [nil]
   def reset
     reset_token
   end
 
-  # Executes the State Machine
+  # Starts the execution of the state machine
+  # @return [nil]
   def execute
     state = current_state
     line.each_char do |character|
@@ -37,30 +48,27 @@ class StateMachine
   # @return [Transition] the next transition to a final state
   def process_character(character)
     transition = get_next_transition(character)
-    get_next_transition(character) if transition.initial?
+    get_and_set_next_transition(character) if transition.initial?
     transition
   end
 
   # Gets the next transition that is valid for the character.
-  # Will set #current_state to Transition#to_state.
+  # And sets the state machine's current state.
+  # Will set {#current_state} to {Transition#to_state}.
   #
   # @param character [String] the character that will be evaluated
   # @return [Transition] the first transition that finds
-  def get_next_transition(character)
+  def get_and_set_next_transition(character)
     transition = get_transition(character)
     self.current_state = transition.to_state
     transition
   end
 
-  # Gets the next transition that is valid for the character.
-  # Will set #current_state to Transition#to_state.
+  # Sets the state the state machine is moving into.
+  # Stores the {#current_state} in {#last_state}
   #
-  # @param character [String] the character that will be evaluated
-  # @return [Transition] the first transition that finds
-  def get_transition(character)
-    current_state.get_next_state(character)
-  end
-
+  # @param [State] value the state the state machine is moving into
+  # @return [nil]
   def current_state=(value)
     self.last_state = current_state
     @current_state = value
@@ -68,12 +76,22 @@ class StateMachine
 
   protected
 
+  # @return [String]
+  # the whole token the state machine has processed until now.
   attr_accessor :token
 
-  def reset_token
-    self.token = ''
+  # Gets the next transition that is valid for the character.
+  # Will set {#current_state} to {Transition#to_state}.
+  #
+  # @param character [String] the character that will be evaluated
+  # @return [Transition] the first transition that finds
+  def get_transition(character)
+    current_state.get_next_state(character)
   end
 
+  # Calls {Logger#log} if the transition is initial.
+  # It will also reset the state machine's token.
+  # @return [nil]
   def log_initial_transition(transition, state)
     if transition.initial?
       logger.log(state: state, transition: transition, character: token)
@@ -81,7 +99,9 @@ class StateMachine
     end
   end
 
-  def log(args = {})
-
+  # Resets the state machine's token
+  # @return [nil]
+  def reset_token
+    self.token = ''
   end
 end

@@ -2,4 +2,6 @@
 --title 'State MachineDocumentation'
 --charset utf-8
 --markup markdown
+--private
+--protected
 '*.rb' - '*.md' - 'doc/*.md'
